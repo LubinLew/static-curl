@@ -1,0 +1,68 @@
+name: release
+
+on:
+  schedule:
+    - cron: '0 0 */1 * *'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build Static Curl
+        run: |
+          ./build.sh
+          if [ -f "curl/mykey.asc" ] ; then
+            git config --global user.name  "LubinLew"
+            git config --global user.email "lgbxyz@gmail.com"
+            git add version.txt
+            VERSION=`cat version.txt`
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "GOON=true" >> $GITHUB_ENV
+            git commit -m "curl ${VERSION}"
+            git push
+          else
+            echo "GOON=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create Tag
+        uses: rickstaa/action-create-tag@v1
+        if: env.GOON == 'true'
+        with:
+          tag: ${{env.VERSION}}
+          message: "static curl ${{env.VERSION}}"
+
+      - name: Release Note
+        run: |
+          CURL=$(ls curl/curl_*|head -n 1)
+          echo -e "\n\n## Components\n"  >> curl/release.md
+          ${CURL} -V | head -n 1 | sed 's/ /\n/g' | grep '/' | grep -iv '\(nss\|schannel\|secure-transport\|ssl\|tls\)' |sed 's#$#\n#g'  >> curl/release.md
+          echo -e "\n\n## Protocols\n"   >> curl/release.md
+          ${CURL} -V | grep Protocols | awk -F':' '{print $2}' >> curl/release.md
+          echo -e "\n\n## Features\n"   >> curl/release.md
+          ${CURL} -V | grep Features  | awk -F':' '{print $2}' >> curl/release.md
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        if: env.GOON == 'true'
+        with:
+          tag: ${{env.VERSION}}
+          name: "static-curl-${{env.VERSION}}"
+          artifacts: "build_curl*,curl/curl_*"
+          bodyFile: "curl/release.md"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Files
+        uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.GOON == 'true'
+        with:
+          file: "*.log, curl/curl_*"
+          tags: ${{env.VERSION}}
