@@ -26,6 +26,11 @@ if [ -z ${SSH_SUPPORT} ] ; then
   SSH_SUPPORT="no"
 fi
 
+# IDN
+if [ -z ${IDN_SUPPORT} ] ; then
+  IDN_SUPPORT="yes"
+fi
+
 TLS_TEST_URL="https://www.ssllabs.com/favicon.ico"
 
 ## log
@@ -82,7 +87,12 @@ function build_curl_source() {
   apk add build-base clang > /dev/null
 
   apk add zlib-static  > /dev/null
-  
+
+  if [ "${IDN_SUPPORT}" == "yes" ] ; then
+    apk add libidn2-dev libidn2-static
+    EXTRA_OPT="${EXTRA_OPT} --with-libidn2"
+  fi
+
   # http2 support
   if [ "${HTTP2_SUPPORT}" == "yes" ] ; then
     apk add nghttp2-dev nghttp2-static > /dev/null
@@ -118,7 +128,9 @@ function build_curl_source() {
 
   ./configure --disable-shared --enable-static --enable-ipv6 \
        --enable-unix-sockets \
+       --enable-tls-srp \
        --with-${TLS}${TLS_OPT} \
+       --with-zlib \
        --disable-ldap \
        --disable-dict \
        --disable-gopher \
@@ -130,7 +142,8 @@ function build_curl_source() {
        --disable-pop3 \
        --disable-mqtt \
        --disable-ftp \
-       --disable-smb
+       --disable-smb \
+       ${EXTRA_OPT}
 
   make -j`nproc`
 
