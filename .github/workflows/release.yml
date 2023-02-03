@@ -39,6 +39,7 @@ jobs:
           message: "static curl ${{env.VERSION}}"
 
       - name: Release Note
+        if: env.GOON == 'true'
         run: |
           CURL=$(ls curl/curl_*|head -n 1)
           echo -e "\n\n## Components\n"  >> curl/release.md
