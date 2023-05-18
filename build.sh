@@ -21,7 +21,7 @@ if [ "${CURL_VERSION}" == "${LOCAL_VERSION}" ] ; then
   exit 0
 fi
 
-echo `date`" ${CURL_VERSION}" > version.txt
+echo ${CURL_VERSION} > version.txt
 
 #  '-e CURL_VERSION=7.87.0 -e TLS=wolfssl -e WOLFSSL_VERSION=5.5.4-stable'
 #  '-e CURL_VERSION=7.87.0 -e TLS=bearssl'
