@@ -87,6 +87,8 @@ function build_curl_source() {
   apk add build-base clang > /dev/null
 
   apk add zlib-static  > /dev/null
+  
+  apk add util-linux-misc  > /dev/null
 
   if [ "${IDN_SUPPORT}" == "yes" ] ; then
     apk add libidn2-dev libidn2-static
