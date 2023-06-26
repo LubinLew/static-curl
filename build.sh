@@ -3,7 +3,7 @@ set -e
 cd `dirname $0`
 #####################################
 WORKDIR="/curl"
-IMAGE="alpine:latest"
+IMAGE="alpine:3.17"
 
 # get latest version
 function get_curl_version() {
