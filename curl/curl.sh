@@ -90,6 +90,8 @@ function build_curl_source() {
   
   apk add util-linux-misc perl > /dev/null
 
+  apk add libpsl-static libpsl-dev > /dev/null
+
   if [ "${IDN_SUPPORT}" == "yes" ] ; then
     apk add libidn2-dev libidn2-static
     EXTRA_OPT="${EXTRA_OPT} --with-libidn2"
