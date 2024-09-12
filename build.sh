@@ -40,5 +40,6 @@ docker pull ${IMAGE}
 for RUNENV in "${DOCKERENVS[@]}" ; do
   LOGFILE_NAME=build_curl$(echo "${RUNENV}" | sed 's#-e#\n#g'|awk -F'=' '{print $2}'|paste -d '_' -s | tr -d ' ').log
   docker run --rm ${RUNENV} -v `pwd`/curl:${WORKDIR} -w ${WORKDIR} ${IMAGE} ${WORKDIR}/curl.sh 2>&1 | tee -a ${LOGFILE_NAME}
+  echo curl-${VERSION}/config.log >> ${LOGFILE_NAME}
 done
 
