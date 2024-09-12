@@ -149,6 +149,10 @@ function build_curl_source() {
        --disable-smb \
        ${EXTRA_OPT}
 
+  echo "[${TAG}] config.log start ===================="
+  cat config.log
+  echo "[${TAG}] config.log end   ===================="
+  
   make -j`nproc`
 
   chmod +x src/curl
